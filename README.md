@@ -1,3 +1,3 @@
-Get started by customizing your environment (defined in the .idx/dev.nix file) with the tools and IDE extensions you'll need for your project!
+# Analogies Dataset
 
-Learn more at https://developers.google.com/idx/guides/customize-idx-env
+## This is the git repo for a custom dataset for analogies based on raven matrices
