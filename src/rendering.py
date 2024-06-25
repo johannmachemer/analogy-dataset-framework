@@ -15,9 +15,20 @@ def renderRoot(root):
     for single_image in root.children_analogie:
         images.append(renderSingleImage(single_image))
 
-    allImage = concatenate_images_horizontally(images)
+    analog_image = concatenate_images_horizontally(images)
 
-    allImage.save("test.png")
+    images = []
+
+    for single_image in root.children_answer:
+        images.append(renderSingleImage(single_image))
+
+    answer_images_1 = concatenate_images_horizontally(images[0:3])
+
+    answer_images_2 = concatenate_images_horizontally(images[3:6])
+
+    all_images = concatenate_images_vertical([analog_image, answer_images_1, answer_images_2])
+
+    all_images.save("test.png")
 
 
 
@@ -75,4 +86,26 @@ def concatenate_images_horizontally(images):
             current_x += 5
 
     return new_image
+
+def concatenate_images_vertical(images):
+    total_width = max(img.width for img in images)
+    max_height = sum(img.height for img in images)
+
+    new_image = Image.new('RGB', (total_width, max_height), 'white')
+    draw = ImageDraw.Draw(new_image)
+
+    current_y = 0
+    for i,img in enumerate(images):
+        new_image.paste(img, (0, current_y))
+        current_y += img.height
+        if i < len(images) - 1:  # Draw the line except after the last image
+            if i == 0:
+                draw.line([(0, current_y), (total_width, current_y)], fill="red", width=5)
+            else:
+                draw.line([(0, current_y), (total_width, current_y)], fill="black", width=5)
+                current_y += 5
+
+    return new_image
+
+
         
