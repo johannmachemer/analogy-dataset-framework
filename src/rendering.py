@@ -1,6 +1,7 @@
 from Tree import(Root, SingleImage)
 from PIL import Image, ImageDraw
 import random
+import os
 
 
 
@@ -28,7 +29,10 @@ def renderRoot(root):
 
     all_images = concatenate_images_vertical([analog_image, answer_images_1, answer_images_2])
 
-    all_images.save("test.png")
+    if not os.path.isdir("data"):
+        os.mkdir("data")
+        
+    all_images.save("data/test.png")
 
 
 
