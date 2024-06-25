@@ -2,3 +2,7 @@
 __pycache__/
 
 .vscode
+
+src/latex/*
+
+src/data/*
