@@ -22,8 +22,8 @@ class Root(TreeNode):
     def insertAnalogie(self, node):
         self.children_analogie.append(node)
 
-    def insertAnswer(self, node):
-        self.children_answer.append(node)
+    def insertAnswers(self, answerList):
+        self.children_answer.extend(answerList)
 
     def print(self):
         print("Root")
@@ -47,6 +47,9 @@ class Root(TreeNode):
             \\end{{document}}
             """
 
+        if not os.path.isdir("latex"):
+            os.mkdir("latex")
+
         os.chdir("latex")
 
         with open("tree.tex", "w") as f:
@@ -58,10 +61,16 @@ class Root(TreeNode):
         # Benenne die generierte PDF-Datei um
         subprocess.run(["mv", "tree.pdf", f"{file_name}.pdf"])
 
+        os.chdir("..")
+
 
     def printLatex(self):
         ausgabe = "[Root "
         for (childNumber,child) in enumerate(self.children_analogie):
+            ausgabe += "[ " 
+            ausgabe += child.printLatex()
+            ausgabe+= "]"
+        for (childNumber,child) in enumerate(self.children_answer):
             ausgabe += "[ " 
             ausgabe += child.printLatex()
             ausgabe+= "]"
@@ -122,10 +131,15 @@ class Component(TreeNode):
         self.type = Type()
         self.size = Size()
 
-    def sample(self):
-        self.size.sample()
-        self.type.sample()
-        
+    def sample(self, attr = None):
+        if attr == None:
+            self.size.sample()
+            self.type.sample()
+        else:
+            if attr == "size":
+                self.size.sample()
+            if attr == "type":
+                self.type.sample()        
 
     def print(self, compNumber):
         print("     |")
