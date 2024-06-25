@@ -1,6 +1,6 @@
 from Attribute import (Size, Type)
 import subprocess
-
+import os
 
 class TreeNode(object):
 
@@ -47,6 +47,8 @@ class Root(TreeNode):
             \\end{{document}}
             """
 
+        os.chdir("latex")
+
         with open("tree.tex", "w") as f:
             f.write(latex_code)
     
@@ -54,7 +56,7 @@ class Root(TreeNode):
         subprocess.run(["pdflatex", "tree.tex"])
         
         # Benenne die generierte PDF-Datei um
-        subprocess.run(["mv", "tree.pdf", file_name])
+        subprocess.run(["mv", "tree.pdf", f"{file_name}.pdf"])
 
 
     def printLatex(self):
