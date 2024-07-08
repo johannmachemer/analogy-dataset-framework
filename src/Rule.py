@@ -36,7 +36,12 @@ class Progression(Rule):
 
         #apply progression
         if self.attr == "size":
-            rule_component_new.size.value = rule_component_before.size.value + self.value
+            # check if progression is possible and size will not be the whole image
+            if(rule_component_before.size.value + self.value < 1):
+                rule_component_new.size.value = rule_component_before.size.value + self.value
+            else:
+                rule_component_new.size.value = rule_component_before.size.value
+                
         if self.attr == "type":
             rule_component_new.type.level = (rule_component_before.type.level+self.value) % len(TYPE_VALUES)
             rule_component_new.type.value = TYPE_VALUES[rule_component_new.type.level]
