@@ -47,11 +47,14 @@ def renderSingleImage(single_image):
 
     for component in single_image.components:
 
+        ## sample new position, so it fits on the image
+        component.position.sample((component.size.get_value(), component.size.get_value()))
+
         if component.type.get_value() == "Square":
 
             rect_width = int(SINGLE_IMAGE_HEIGHT * component.size.get_value())
-            x0 = random.randint(0, SINGLE_IMAGE_HEIGHT - rect_width)
-            y0 = random.randint(0, SINGLE_IMAGE_HEIGHT - rect_width)
+            x0 = component.position.get_value()[0]
+            y0 = component.position.get_value()[1]
 
             x1 = x0 + rect_width
             y1 = y0 + rect_width
@@ -60,8 +63,10 @@ def renderSingleImage(single_image):
 
             circle_diameter = int(min(SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH) * component.size.get_value())
 
-            x0 = random.randint(0, SINGLE_IMAGE_HEIGHT - circle_diameter)
-            y0 = random.randint(0, SINGLE_IMAGE_HEIGHT - circle_diameter)
+            
+
+            x0 = component.position.get_value()[0]
+            y0 = component.position.get_value()[1]
             x1 = x0 + circle_diameter
             y1 = y0 + circle_diameter
 
