@@ -7,6 +7,7 @@ import copy
 from PIL import Image, ImageDraw
 import random
 from rendering import renderRoot
+from json_export import to_json
 
 
 def create_candidates(root: Root, answer: SingleImage):
@@ -65,9 +66,11 @@ analog.insertAnswers(candidates)
 
 # analog.printLatex()
 
-# analog.saveLatex("test_with_answers")
+# analog.saveLatex("test_with_new_position")
 
-renderRoot(analog)
+# renderRoot(analog)
+
+to_json(analog)
 
 
 
