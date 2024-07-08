@@ -6,3 +6,5 @@ __pycache__/
 src/latex/*
 
 src/data/*
+
+*.json
