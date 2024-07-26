@@ -2,12 +2,34 @@ from Tree import(Root, SingleImage)
 from PIL import Image, ImageDraw
 import random
 import os
-
-
-
 from const import (SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH)
 
-def renderRoot(root):
+def safeRootAsSingleImages(root,id):
+    assert isinstance(root, Root)
+
+    images = []
+
+    for single_image in root.children_analogie:
+        images.append(renderSingleImage(single_image))
+
+    for single_image in root.children_answer:
+        images.append(renderSingleImage(single_image))
+
+    if not os.path.isdir("data"):
+        os.mkdir("data")
+
+    for (idx,image) in enumerate(images):
+
+        if not os.path.isdir(f"data/{id}"):
+            os.mkdir(f"data/{id}")
+
+        image.save(f"data/{id}/{id}-{idx}.png")
+
+
+
+    
+
+def safeRootAsCollage(root, id):
 
     assert isinstance(root, Root)
 
@@ -32,7 +54,7 @@ def renderRoot(root):
     if not os.path.isdir("data"):
         os.mkdir("data")
         
-    all_images.save("data/test.png")
+    all_images.save(f"data/{id}/{id}-collage.png")
 
 
 
@@ -47,8 +69,7 @@ def renderSingleImage(single_image):
 
     for component in single_image.components:
 
-        ## sample new position, so it fits on the image
-        component.position.sample((component.size.get_value(), component.size.get_value()))
+        
 
         if component.type.get_value() == "Square":
 
