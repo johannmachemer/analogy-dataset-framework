@@ -10,7 +10,7 @@ SIZE_MIN = 0
 SIZE_MAX = len(SIZE_VALUES)-1
 
 # Type
-TYPE_VALUES = ["Square", "Circle"]
+TYPE_VALUES = ["Square", "Circle", "Star"]
 TYPE_MIN = 0
 TYPE_MAX = len(TYPE_VALUES) -1
 

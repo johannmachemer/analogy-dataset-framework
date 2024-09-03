@@ -1,8 +1,25 @@
 from Tree import(Root, SingleImage)
 from PIL import Image, ImageDraw
+import math
 import random
 import os
 from const import (SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH)
+
+
+
+def render_star(draw, center, radius, points, fill, outline, width):
+    angle = math.pi / points
+    rotation_offset = math.pi / 2
+
+    coords = []
+    for i in range(2 * points):
+        r = radius if i % 2 == 0 else radius / 2
+        x = center[0] + r * math.cos(i * angle + rotation_offset)
+        y = center[1] - r * math.sin(i * angle + rotation_offset)
+        coords.append((x, y))
+
+    draw.polygon(coords, fill=fill, outline=outline, width=width)
+
 
 def safeRootAsSingleImages(root,id):
     assert isinstance(root, Root)
@@ -69,7 +86,9 @@ def renderSingleImage(single_image):
 
     for component in single_image.components:
 
-        
+        filling = component.filling.get_value()
+        fill_color = int(255 * (1-filling)) 
+        fill = (fill_color, fill_color, fill_color)
 
         if component.type.get_value() == "Square":
 
