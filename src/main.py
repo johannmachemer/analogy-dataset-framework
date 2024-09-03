@@ -119,56 +119,56 @@ def build_first_example_sample():
 
 
     
-build_first_example_sample()
+# build_first_example_sample()
 
 
 
 
-# progression = Progression("size", [0.2])
-# progression.sample()
-# const = Const("type")
+progression = Progression("filling", [0.4])
+progression.sample()
+const = Const("type")
 
 
-# analog = Root([progression, const])
+analog = Root([progression, const])
 
-# first = SingleImage()
+first = SingleImage()
 
-# first.insertComponent(Component())
-# first.insertComponent(Component())
+first.insertComponent(Component())
+first.insertComponent(Component())
 
-# first.sample()
+first.sample()
 
-# second = copy.deepcopy(first)
+second = copy.deepcopy(first)
 
-# second.sample()
+second.sample()
 
-# progression.apply_rule(first, second)
-# const.apply_rule(first, second)
+progression.apply_rule(first, second)
+const.apply_rule(first, second)
 
-# third = copy.deepcopy(second)
+third = copy.deepcopy(second)
 
-# third.sample()
+third.sample()
 
-# progression.apply_rule(second, third)
-# const.apply_rule(second, third)
+progression.apply_rule(second, third)
+const.apply_rule(second, third)
 
 
 
-# analog.insertAnalogie(first)
-# analog.insertAnalogie(second)
-# analog.insertAnalogie(third)
+analog.insertAnalogie(first)
+analog.insertAnalogie(second)
+analog.insertAnalogie(third)
 
-# candidates = create_candidates(analog, third)
+candidates = create_candidates(analog, third)
 
-# analog.insertAnswers(candidates)
+analog.insertAnswers(candidates)
 
-# # analog.printLatex()
+# analog.printLatex()
 
-# # analog.saveLatex("test_with_new_position")
+# analog.saveLatex("test_with_new_position")
 
-# # renderRoot(analog)
-
-# # safe_json(analog, 1)
+safeRootAsSingleImages(analog, 1)
+safe_json(analog, 1)
+safeRootAsCollage(analog, 1)
 
 
 
