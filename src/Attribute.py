@@ -1,6 +1,6 @@
 import numpy as np
 
-from const import(SIZE_VALUES,SIZE_MAX,SIZE_MIN, TYPE_VALUES, TYPE_MAX, TYPE_MIN,SINGLE_IMAGE_HEIGHT)
+from const import(SIZE_VALUES,SIZE_MAX,SIZE_MIN, TYPE_VALUES, TYPE_MAX, TYPE_MIN,SINGLE_IMAGE_HEIGHT, FILLING_MAX, FILLING_MIN, FILLING_VALUES)
 
 class Attribute():
     """
@@ -86,7 +86,32 @@ class Position(Attribute):
     def sample(self, size=(0,0)):
         self.level = (np.random.randint(self.min_level, int(self.max_level - size[0]*SINGLE_IMAGE_HEIGHT)), np.random.randint(self.min_level, (self.max_level - size[1]*SINGLE_IMAGE_HEIGHT)))
         self.value = self.level
-    
+
+
+class Filling(Attribute):
+    """
+    Initalize new Filling attribute
+
+    Args:
+        min_level (int): the minimum level of the size.
+        max_level (str): the maximum level of the size
+    """
+
+    def __init__(self, min_level = FILLING_MIN, max_level=FILLING_MAX):
+        self.min_level = min_level
+        self.max_level = max_level
+        self.values = FILLING_VALUES
+
+
+        #standard value
+        self.level = min_level
+        self.value = self.values[self.level]
+
+
+    def sample(self):
+        self.level = np.random.randint(self.min_level, self.max_level+1)
+        self.value = self.values[self.level]
+
 
 
         

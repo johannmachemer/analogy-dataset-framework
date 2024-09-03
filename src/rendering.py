@@ -79,7 +79,7 @@ def renderSingleImage(single_image):
 
             x1 = x0 + rect_width
             y1 = y0 + rect_width
-            draw.rectangle([x0, y0, x1, y1], outline="black", width= 2)
+            draw.rectangle([x0, y0, x1, y1], outline="black", width= 2, fill=fill)
         elif component.type.get_value() == "Circle":
 
             circle_diameter = int(min(SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH) * component.size.get_value())
@@ -91,7 +91,12 @@ def renderSingleImage(single_image):
             x1 = x0 + circle_diameter
             y1 = y0 + circle_diameter
 
-            draw.ellipse([x0, y0, x1, y1], outline="black", width= 2)
+            draw.ellipse([x0, y0, x1, y1], outline="black", width= 2, fill=fill)
+
+        elif component.type.get_value() == "Star":
+            center = component.position.get_value()
+            radius = int(min(SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH) * component.size.get_value() / 2)
+            render_star(draw, center, radius, 5, fill, "black", 2)
     
 
     return img

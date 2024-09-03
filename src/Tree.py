@@ -1,4 +1,4 @@
-from Attribute import (Size, Type, Position)
+from Attribute import (Size, Type, Position, Filling)
 import subprocess
 import os
 
@@ -131,6 +131,7 @@ class Component(TreeNode):
         self.type = Type()
         self.size = Size()
         self.position = Position()
+        self.filling = Filling()
 
     def sample(self, attr = None):
         if attr == None:
@@ -146,6 +147,8 @@ class Component(TreeNode):
                 self.type.sample()
             elif attr == "position":
                 self.position.sample()
+            elif attr == "filling":
+                self.filling.sample()
 
     def print(self, compNumber):
         print("     |")
@@ -154,6 +157,7 @@ class Component(TreeNode):
         print("        --Type: ", self.type.get_value())
         print("        --Size: ", self.size.get_value())
         print("        --Position: ", self.position.get_value())
+        print("        --Filling: ", self.filling.get_value())
 
     def printLatex(self):
         ausgabe = ""
@@ -166,6 +170,9 @@ class Component(TreeNode):
         ausgabe += "]" 
         ausgabe += "[ Position: "
         ausgabe += f"\({self.position.get_value()[0]} \, {self.position.get_value()[1]}\)"
+        ausgabe += "]"
+        ausgabe += "[ Filling: "
+        ausgabe += f"\({self.filling.get_value()}\)"
         ausgabe += "]"
         
 

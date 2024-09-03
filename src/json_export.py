@@ -9,7 +9,8 @@ def component_to_json(idx, component:Component):
     component_dict["type"] = component.type.get_value()
     component_dict["size"] = component.size.get_value()
     component_dict["position"] = component.position.get_value()
-    
+    component_dict["filling"] = component.filling.get_value()
+     
     return component_dict
 
 

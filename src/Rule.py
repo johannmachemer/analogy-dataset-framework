@@ -46,6 +46,12 @@ class Progression(Rule):
             rule_component_new.type.level = (rule_component_before.type.level+self.value) % len(TYPE_VALUES)
             rule_component_new.type.value = TYPE_VALUES[rule_component_new.type.level]
 
+        if self.attr == "filling":
+            if(rule_component_before.filling.value + self.value < 1):
+                rule_component_new.filling.value = rule_component_before.filling.value + self.value
+            else:
+                rule_component_new.filling.value = rule_component_before.filling.value
+
         return new_image
 
 class Const(Rule):
@@ -66,6 +72,8 @@ class Const(Rule):
             rule_component_new.size.value = rule_component_before.size.value
         if self.attr == "type":
             rule_component_new.type.value = rule_component_before.type.value
+        if self.attr == "filling":
+            rule_component_new.filling.value = rule_component_before.filling.value
 
         return new_image
 
