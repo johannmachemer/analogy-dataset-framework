@@ -144,7 +144,7 @@ class Component(TreeNode):
             if attr == "size":
                 self.size.sample()
                 self.position.sample((self.size.get_value(), self.size.get_value()))
-            elif attr == "type":
+            elif attr == "type"  or attr == "corners":
                 self.type.sample()
             elif attr == "position":
                 self.position.sample()
