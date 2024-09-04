@@ -1,12 +1,12 @@
 import numpy as np
 import copy
 
-from const import (TYPE_VALUES)
+from const import (TYPE_VALUES, CORNER_ORDER)
 
 class Rule():
     """ Superclass of all rules """
 
-    def __init__(self, attr, params, component_idx=0):
+    def __init__(self, attr, params=[], component_idx=0):
         """Instantiate a rule.
             Args:
                 attr (str): pre-defined name of the attribute where to apply the rule
@@ -21,13 +21,14 @@ class Rule():
         pass
 
     def sample(self):
-        self.value = np.random.choice(self.params)
+        if(len(self.params) > 0):
+            self.value = np.random.choice(self.params)
 
 
 class Progression(Rule):
     """ Rule for progression """
 
-    def __init__(self, attr, params, component_idx=0):
+    def __init__(self, attr, params = [], component_idx=0):
         super().__init__( attr, params, component_idx)
 
     def apply_rule(self, image_before, new_image):
