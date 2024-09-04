@@ -47,7 +47,7 @@ class Progression(Rule):
             rule_component_new.type.value = TYPE_VALUES[rule_component_new.type.level]
 
         if self.attr == "filling":
-            if(rule_component_before.filling.value + self.value < 1):
+            if(rule_component_before.filling.value + self.value <= 1):
                 rule_component_new.filling.value = rule_component_before.filling.value + self.value
             else:
                 rule_component_new.filling.value = rule_component_before.filling.value
