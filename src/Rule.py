@@ -51,6 +51,12 @@ class Progression(Rule):
                 rule_component_new.filling.value = rule_component_before.filling.value + self.value
             else:
                 rule_component_new.filling.value = rule_component_before.filling.value
+        if self.attr == "corners":
+            assert rule_component_before.type.value != "Star", "Corner Progression on star not possible"
+            rule_component_new.type.level = CORNER_ORDER.index(rule_component_before.type.value)+1
+            rule_component_new.type.value = CORNER_ORDER[rule_component_new.type.level]
+
+        
 
         return new_image
 
