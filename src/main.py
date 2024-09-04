@@ -124,12 +124,11 @@ def build_first_example_sample():
 
 
 
-progression = Progression("filling", [0.4])
+progression = Progression("corners")
 progression.sample()
-const = Const("type")
 
 
-analog = Root([progression, const])
+analog = Root([progression])
 
 first = SingleImage()
 
@@ -143,14 +142,12 @@ second = copy.deepcopy(first)
 second.sample()
 
 progression.apply_rule(first, second)
-const.apply_rule(first, second)
 
 third = copy.deepcopy(second)
 
 third.sample()
 
 progression.apply_rule(second, third)
-const.apply_rule(second, third)
 
 
 
