@@ -18,9 +18,22 @@ class Rule():
         self.component_idx = component_idx
 
     def apply_rule(self):
+        """
+        apply rule on single image
+
+        Args:
+            image_before (SingleImage): the image where the rule is being applied
+            new_image (SingleImage): the image where the applied rule is saved in
+
+        Returns:
+            new_image(SingleImage): the new image with applied rules
+        """
         pass
 
     def sample(self):
+        """
+        sample the value of the rule
+        """
         if(len(self.params) > 0):
             self.value = np.random.choice(self.params)
 
@@ -32,6 +45,7 @@ class Progression(Rule):
         super().__init__( attr, params, component_idx)
 
     def apply_rule(self, image_before, new_image):
+        
         rule_component_new = new_image.components[self.component_idx]
         rule_component_before = image_before.components[self.component_idx]
 

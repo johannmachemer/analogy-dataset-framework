@@ -8,6 +8,18 @@ from const import (SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH)
 
 
 def render_star(draw, center, radius, points, fill, outline, width):
+    """
+    Draws a star-shaped polygon on a canvas.
+
+    Args:
+        draw: The drawing context
+        center (tuple): The (x, y) coordinates of the star's center.
+        radius (float): The radius of the star (distance from center to outermost points).
+        points (int): The number of points (or spikes) the star should have.
+        fill: The fill color of the star.
+        outline: The outline color of the star.
+        width (int): The width of the star's outline.
+    """
     angle = math.pi / points
     rotation_offset = math.pi / 2
 
@@ -21,7 +33,15 @@ def render_star(draw, center, radius, points, fill, outline, width):
     draw.polygon(coords, fill=fill, outline=outline, width=width)
 
 
+
 def safeRootAsSingleImages(root,id):
+    """
+    Saves a Root as single images
+
+    Args:
+        root (Root): root to save
+        id (int): id of the analogy
+    """
     assert isinstance(root, Root)
 
     images = []
@@ -47,6 +67,13 @@ def safeRootAsSingleImages(root,id):
     
 
 def safeRootAsCollage(root, id):
+    """
+    Saves a Root as a collage
+
+    Args:
+        root (Root): root to save
+        id (int): id of the analogy
+    """
 
     assert isinstance(root, Root)
 
@@ -76,6 +103,15 @@ def safeRootAsCollage(root, id):
 
 
 def renderSingleImage(single_image):
+    """
+    Render a single image
+
+    Args:
+        single_image (SingleImage): the single image to render
+
+    Returns:
+        img (Image): The rendered Image
+    """
 
 
     assert isinstance(single_image, SingleImage)
@@ -122,6 +158,15 @@ def renderSingleImage(single_image):
 
 
 def concatenate_images_horizontally(images):
+    """
+    concatenate multiple images horizontally
+
+    Args:
+        images (List(Image)): All Images to concatenate
+
+    Returns:
+        new_img (Image): All images put together horizontally
+    """
     # Calculate the total width and maximum height of the final image
     total_width = sum(img.width for img in images)
     max_height = max(img.height for img in images)
@@ -141,7 +186,18 @@ def concatenate_images_horizontally(images):
 
     return new_image
 
+
+
 def concatenate_images_vertical(images):
+    """
+    concatenate multiple images vertically
+
+    Args:
+        images (List(Image)): All Images to concatenate
+
+    Returns:
+        new_img (Image): All images put together vertically
+    """
     total_width = max(img.width for img in images)
     max_height = sum(img.height for img in images)
 

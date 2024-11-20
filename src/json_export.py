@@ -3,7 +3,18 @@ from Tree import (Root,Component)
 import json
 
 
+
 def component_to_json(idx, component:Component):
+
+    """
+        convert single component to json
+
+        Args:
+            idx (int): index of the component inside of single image
+            component (Component): the component to convert
+    """    
+
+
     component_dict = {}
     component_dict["component_id"] = idx
     component_dict["type"] = component.type.get_value()
@@ -15,6 +26,13 @@ def component_to_json(idx, component:Component):
 
 
 def single_image_to_json(idx, child):
+    """
+    convert single image to json
+
+    Args:
+        idx (int): index of the single image inside of the root
+        child (SingleImage): the single image to convert
+    """
     single_image_dict = {}
     
     single_image_dict["img_id"] = idx
@@ -27,7 +45,14 @@ def single_image_to_json(idx, child):
     return single_image_dict
     
 
-def safe_json(root:Root, analogie_id,):
+def safe_json(root:Root, analogie_id):
+    """
+    convert root to json
+
+    Args:
+        root (Root): root to convert
+        analogy_id (int): id of the analogy to convert
+    """
     root_dict = {}
 
     meta_dict = {}
