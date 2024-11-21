@@ -14,8 +14,20 @@ from json_export import safe_json
 
 
 def create_candidates(root: Root, answer: SingleImage):
+    """
+        create answer candidates based on root and correct answer 
 
-    ruleList:list(Rule) = root.getRules()
+        
+    Attr:
+        root (Root): root of the analogy
+        answer (SingleImage): the image that builds the correct analogy
+
+    Ret:
+        candidates (List(SingleImage)): List of answer candidates
+
+    """
+
+    ruleList = root.getRules()
 
     candidates = []
 
@@ -32,6 +44,11 @@ def create_candidates(root: Root, answer: SingleImage):
 
 
 def build_first_example_sample():
+
+    """
+        builds and saves example dataset
+    
+    """
 
     for i in range(0,5):
         
