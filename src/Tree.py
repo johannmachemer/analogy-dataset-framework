@@ -212,10 +212,10 @@ class Component(TreeNode):
 
     def sample(self, attr = None):
         """
-        sample a Single Image node.
+        sample a Single Image node. Sample either all attributes or one single attribute.
 
         Args:
-            attr (String): The attraction of the sampling (size, type, position or filling). If not set, ever attribute will be sampled
+            attr (String): The attribute that should be sampled (size, type, position or filling). If not set, ever attribute will be sampled
         """
 
 
