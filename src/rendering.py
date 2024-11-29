@@ -1,13 +1,9 @@
-import numpy as np
-from numpy import ndarray
-from numpy.f2py.auxfuncs import throw_error
-
 from Tree import (AnalogySample, SingleImage, Group)
 from PIL import Image, ImageDraw
-import math
-import random
 import os
 from const import (SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH, STAR_PEAKS)
+from src.RenderingObjectGenerator import determine_all_rendering_objects
+
 
 def safe_root_as_single_images(root, id):
     """
@@ -36,10 +32,6 @@ def safe_root_as_single_images(root, id):
             os.mkdir(f"data/{id}")
 
         image.save(f"data/{id}/{id}-{idx}.png")
-
-
-
-    
 
 def safe_root_as_collage(root, id):
     """
@@ -74,106 +66,6 @@ def safe_root_as_collage(root, id):
         os.mkdir("data")
         
     all_images.save(f"data/{id}/{id}-collage.png")
-
-
-def determine_all_rendering_objects(components_list, super_width = SINGLE_IMAGE_WIDTH, super_fill = 1):
-    result = []
-    for component in components_list:
-        if isinstance(component, Group):
-            subcomponents = determine_all_rendering_objects(component.components, super_width * component.size.get_value(),
-                                                            super_fill * component.filling.get_value())
-            for subcomponent in subcomponents:
-                subcomponent.translate_and_rotate(component.position.value, component.rotation.value)
-            result.extend(subcomponents)
-        else:
-            if component.type.get_value() == "Square":
-                rendering_object = Square(component, super_width, super_fill)
-            elif component.type.get_value() == "Circle":
-                rendering_object = Circle(component, super_width, super_fill)
-            else:
-                rendering_object = Star(component, super_width, super_fill)
-            result.append(rendering_object)
-    return result
-
-
-def translate_and_rotate(points, center, angle):
-        theta = angle / 180 * np.pi
-        c, s = np.cos(angle), np.sin(theta)
-        rotation_matrix = np.array(((c, -s), (s, c)))
-        return np.matmul(points, rotation_matrix) + center
-
-def filling(component, super_fill):
-    value = component.filling.get_value()
-    fill_color = int(255 * value * super_fill)
-    return fill_color, fill_color, fill_color
-
-def convert_coordinates(coordinates:ndarray[:2]) -> list[tuple[float, float]]:
-    return [ (x,y) for x,y in coordinates]
-
-class RenderingObject:
-
-    def __init__(self, position, width, angle, fill):
-        w = width / 2
-        self.fill = fill
-        self.boundingBox = translate_and_rotate(
-            np.array([[-w, -w], [w, -w], [w, w], [-w, w]]),
-            position,
-            angle)
-
-    def translate_and_rotate(self, center, angle):
-        self.boundingBox =  translate_and_rotate(self.boundingBox, center, angle)
-
-    def draw(self, canvas):
-        raise NotImplementedError()
-
-class Circle(RenderingObject):
-
-    def __init__(self, component, width, super_fill):
-        circle_diameter = int(width * component.size.get_value())
-        super().__init__(component.position.value, circle_diameter, 0, filling(component, super_fill))
-
-    def translate_and_rotate(self, center, angle):
-        self.boundingBox =  super().translate_and_rotate(center, 0)
-
-    def draw(self, canvas):
-        canvas.ellipse(convert_coordinates([self.boundingBox[0], self.boundingBox[2]]), outline="black", width=2, fill=self.fill)
-
-class Square(RenderingObject):
-
-    def __init__(self, component, width, super_fill):
-        rect_width = int(width * component.size.get_value())
-        super().__init__(component.position.value, rect_width, component.rotation.value % 90, filling(component, super_fill))
-
-    def draw(self, canvas):
-        canvas.polygon(convert_coordinates(self.boundingBox), fill=self.fill, outline="black", width=2)
-
-    def translate_and_rotate(self, center, angle):
-        super().translate_and_rotate(center, 0)
-
-class Star(RenderingObject):
-
-    def __init__(self, component, width, super_fill):
-        center = component.position.get_value()
-        radius = int(width * component.size.get_value() / 2)
-        angle = math.pi / STAR_PEAKS
-        rotation_offset = math.pi / 2
-
-        self.coordinates = np.empty((0, 2))
-        for i in range(2 * STAR_PEAKS):
-            r = radius if i % 2 == 0 else radius / 2
-            x = center[0] + r * math.cos(i * angle + rotation_offset)
-            y = center[1] + r * math.sin(i * angle + rotation_offset)
-            self.coordinates = np.concatenate((self.coordinates, [(x, y)]))
-        super().__init__(component.position.value, radius * 2, component.rotation.value, filling(component, super_fill))
-
-    def translate_and_rotate(self, center, angle):
-        super().translate_and_rotate(center, angle % (360 / STAR_PEAKS))
-        self.coordinates = translate_and_rotate(self.coordinates, center, angle % (360 / STAR_PEAKS))
-
-    def draw(self, canvas):
-        canvas.polygon(convert_coordinates(self.coordinates), fill=self.fill, outline="black", width=2)
-
-
 
 def render_single_image(single_image):
     """

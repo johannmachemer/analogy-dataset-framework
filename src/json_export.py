@@ -19,7 +19,7 @@ def component_to_json(idx, component:Component):
     component_dict["type"] = component.type.get_value()
     component_dict["size"] = component.size.get_value()
     component_dict["position"] = component.position.get_value().tolist()
-    component_dict["rotation"] = component.rotation.get_value()
+    component_dict["rotation"] = str(component.rotation.get_value())
     component_dict["filling"] = component.filling.get_value()
 
     return component_dict
@@ -69,6 +69,7 @@ def safe_json(sample:AnalogySample, analogy_id:int):
         rule_dict["rule_type"] = rule.__class__.__name__
         rule_dict["component_idx"] = rule.component_idx
         rule_dict["attr"] = rule.attr
+        rule_dict["value"] = str(rule.value)
         root_dict["rules"].append(rule_dict)
 
     analogy = []

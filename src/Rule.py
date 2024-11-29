@@ -1,7 +1,8 @@
 import numpy as np
-import copy
 
 from const import (TYPE_VALUES, CORNER_ORDER)
+from src.const import SIZE_PROGRESSIONS, FILLING_PROGRESSIONS, ROTATION_PROGRESSIONS, POSITION_PROGRESSIONS
+
 
 class Rule:
     """ Superclass of all rules """
@@ -16,6 +17,7 @@ class Rule:
         self.attr = attr
         self.params = params
         self.component_idx = component_idx
+        self.value = None
 
     def apply_rule(self, image_before, new_image):
         """
@@ -34,14 +36,20 @@ class Rule:
         """
         sample the value of the rule
         """
-        if len(self.params) > 0:
-            self.value = np.random.choice(self.params)
-        elif self.attr == "size":
-            self.value = 0.2
-        elif self.attr == "type":
-            self.value = 1
-        elif self.attr == "filling":
-            self.value = 0.2
+        if len(self.params) == 0:
+            if self.attr == "size":
+                self.params = SIZE_PROGRESSIONS
+            elif self.attr == "position":
+                self.params = POSITION_PROGRESSIONS
+            elif self.attr == "type":
+                self.params = TYPE_VALUES
+            elif self.attr == "filling":
+                self.params = FILLING_PROGRESSIONS
+            elif self.attr == "rotation":
+                self.params = ROTATION_PROGRESSIONS
+            else:
+                raise ValueError
+        self.value = np.random.choice(self.params)
 
 
 
@@ -53,32 +61,23 @@ class Progression(Rule):
 
     def apply_rule(self, image_before, new_image):
 
-        rule_component_new = new_image.components[self.component_idx]
-        rule_component_before = image_before.components[self.component_idx]
+        rule_component = new_image.components[self.component_idx]
 
         #apply progression
         if self.attr == "size":
-            # check if progression is possible and size will not be the whole image
-            if rule_component_before.size.value + self.value < 1:
-                rule_component_new.size.value = rule_component_before.size.value + self.value
-            else:
-                rule_component_new.size.value = rule_component_before.size.value
+            rule_component.size.value = rule_component.size.value + self.value
                 
+        if self.attr == "position":
+            rule_component.position.value = rule_component.position.value + self.value * np.ones(2)
+
         if self.attr == "type":
-            rule_component_new.type.level = (rule_component_before.type.level+self.value) % len(TYPE_VALUES)
-            rule_component_new.type.value = TYPE_VALUES[rule_component_new.type.level]
+            rule_component.type.value = self.value
 
         if self.attr == "filling":
-            if rule_component_before.filling.value + self.value <= 1:
-                rule_component_new.filling.value = rule_component_before.filling.value + self.value
-            else:
-                rule_component_new.filling.value = rule_component_before.filling.value
-        if self.attr == "corners":
-            assert rule_component_before.type.value != "Star", "Corner Progression on star not possible"
-            rule_component_new.type.level = CORNER_ORDER.index(rule_component_before.type.value)+1
-            rule_component_new.type.value = CORNER_ORDER[rule_component_new.type.level]
+            rule_component.filling.value = rule_component.filling.value + self.value
 
-        
+        if self.attr == "rotation":
+            rule_component.rotation.value = rule_component.rotation.value + self.value
 
         return new_image
 

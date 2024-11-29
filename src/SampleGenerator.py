@@ -1,55 +1,77 @@
 import numpy as np
 
-from Attribute import Size
 from Rule import (Progression,Const, Rule)
 from Tree import AnalogySample
 from Tree import SingleImage
 from Tree import Component
 import copy
-from PIL import Image, ImageDraw
-import random
-from rendering import (safe_root_as_collage, safe_root_as_single_images)
-from json_export import safe_json
 from src.Attribute import KindsOfAttributes
-from src.const import NUMBER_OF_SAMPLES, MIN_COMPONENTS, MAX_COMPONENTS
+from src.RenderingObjectGenerator import RenderingObject, determine_all_rendering_objects
+from src.const import NUMBER_OF_SAMPLES, MIN_COMPONENTS, MAX_COMPONENTS, SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH
+
 
 def create_analogy_sample():
-    rules:[Rule] =  create_analogy_rules()
-    analog = AnalogySample(rules)
 
-    first = SingleImage()
-    third = SingleImage()
-    for i in range(0, np.random.randint(MIN_COMPONENTS, MAX_COMPONENTS+1)):
-        first.insert_component(Component())
-        third.insert_component(Component())
-    first.sample()
-    third.sample()
+    first = create_valid_image()
+    third = create_valid_image()
 
+    analog = create_samples_with_valid_rules(first, third)
+
+    candidates = create_candidates(analog)
+
+    analog.insert_candidates(candidates)
+    return analog
+
+
+def create_samples_with_valid_rules(first, third):
+    rules:[Rule] = create_analogy_rules()
     second = copy.deepcopy(first)
     fourth = copy.deepcopy(third)
     for rule in rules:
         rule.apply_rule(first, second)
         rule.apply_rule(third, fourth)
 
+    if not (validate_image(second) and validate_image(fourth)):
+        return create_samples_with_valid_rules(first, third)
+
+    analog = AnalogySample(rules)
     analog.insert_analogy(first)
     analog.insert_analogy(second)
     analog.insert_analogy(third)
-    #analog.insertAnalogy(fourth)
+    # analog.insert_analogy(fourth)
     analog.insert_candidates([fourth])
-
-    candidates = create_candidates(analog, third)
-
-    analog.insert_candidates(candidates)
     return analog
 
 
-def create_candidates(root: AnalogySample, answer: SingleImage):
+def create_image():
+    image = SingleImage()
+    for i in range(0, np.random.randint(MIN_COMPONENTS, MAX_COMPONENTS+1)):
+        image.insert_component(Component())
+    image.sample()
+    return image
+
+def create_valid_image():
+    image = create_image()
+    return image if validate_image(image) else create_valid_image()
+
+def validate_image(image:SingleImage):
+    objects = determine_all_rendering_objects(image.components)
+    for first_index in range(len(objects) - 1):
+        first = objects[first_index]
+        if not first.is_valid(SINGLE_IMAGE_WIDTH, SINGLE_IMAGE_HEIGHT):
+            return False
+        for second_index in range(first_index + 1, len(objects)):
+            if first.overlap(objects[second_index]):
+                return False
+    return True
+
+def create_candidates(sample: AnalogySample):
     """
         create answer candidates based on root and correct answer
 
 
     Attr:
-        root (Root): root of the analogy
+        root (AnalogySample): root of the analogy
         answer (SingleImage): the image that builds the correct analogy
 
     Ret:
@@ -57,16 +79,12 @@ def create_candidates(root: AnalogySample, answer: SingleImage):
 
     """
 
-    rule_list = root.get_rules()
+    rule_list = sample.get_rules()
 
     candidates = []
 
     for i in range(5):
-        candidate = copy.deepcopy(answer)
-
-        for rule in rule_list:
-            # just sample attr component and just attr attribute
-            candidate.components[rule.component_idx].sample(rule.attr)
+        candidate = create_valid_image()
 
         candidates.append(candidate)
 
