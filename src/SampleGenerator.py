@@ -60,7 +60,15 @@ def create_valid_image():
         save_invalid_image(image)
     return create_valid_image()
 
+
+def invalid_component(component):
+    invalid_subcomponents = component.type.value == "Group" and any(invalid_component(comp) for comp in component.components)
+    return invalid_subcomponents or not(0 < component.size.value < 1) or not(0 < component.filling.value < 1)
+
+
 def validate_image(image:SingleImage):
+    if invalid_component(image):
+        return False
     objects = determine_all_rendering_objects(image.components)
     for obj in objects:
         if not obj.is_valid(SINGLE_IMAGE_WIDTH, SINGLE_IMAGE_HEIGHT):

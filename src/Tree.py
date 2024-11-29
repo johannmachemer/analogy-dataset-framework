@@ -219,6 +219,7 @@ class Group(Component):
         Instantiate a Single Image node.
         """
         super().__init__()
+        self.type.value = "Group"
         # all children components
         self.components = []
 
@@ -275,3 +276,6 @@ class SingleImage(Group):
 
     def identification(self):
         return "Image"
+
+    def sample(self):
+        super().sample_child_components()
