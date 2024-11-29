@@ -1,5 +1,5 @@
 import os
-from Tree import (Root,Component)
+from Tree import (AnalogySample, Component)
 import json
 
 
@@ -12,16 +12,16 @@ def component_to_json(idx, component:Component):
         Args:
             idx (int): index of the component inside of single image
             component (Component): the component to convert
-    """    
-
+    """
 
     component_dict = {}
     component_dict["component_id"] = idx
     component_dict["type"] = component.type.get_value()
     component_dict["size"] = component.size.get_value()
-    component_dict["position"] = component.position.get_value()
+    component_dict["position"] = component.position.get_value().tolist()
+    component_dict["rotation"] = component.rotation.get_value()
     component_dict["filling"] = component.filling.get_value()
-     
+
     return component_dict
 
 
@@ -34,7 +34,7 @@ def single_image_to_json(idx, child):
         child (SingleImage): the single image to convert
     """
     single_image_dict = {}
-    
+
     single_image_dict["img_id"] = idx
     single_image_dict["components"] = []
 
@@ -45,25 +45,25 @@ def single_image_to_json(idx, child):
     return single_image_dict
     
 
-def safe_json(root:Root, analogie_id):
+def safe_json(sample:AnalogySample, analogy_id:int):
     """
-    convert root to json
+    convert sample to json
 
     Args:
-        root (Root): root to convert
+        sample (AnalogySample): root to convert
         analogy_id (int): id of the analogy to convert
     """
     root_dict = {}
 
     meta_dict = {}
 
-    meta_dict["id"] = analogie_id
+    meta_dict["id"] = analogy_id
 
     root_dict["meta"] = meta_dict
 
     root_dict["rules"] = []
 
-    for(rule_idx, rule) in enumerate(root.getRules()):
+    for(rule_idx, rule) in enumerate(sample.get_rules()):
         rule_dict = {}
         rule_dict["rule_id"] = rule_idx
         rule_dict["rule_type"] = rule.__class__.__name__
@@ -71,20 +71,20 @@ def safe_json(root:Root, analogie_id):
         rule_dict["attr"] = rule.attr
         root_dict["rules"].append(rule_dict)
 
-    analogie_list = []
+    analogy = []
 
-    for (idx,child) in enumerate(root.children_analogie):
+    for (idx,child) in enumerate(sample.analogy):
         
-        analogie_list.append(single_image_to_json(idx, child))
+        analogy.append(single_image_to_json(idx, child))
 
 
-    root_dict["analogie"] = analogie_list
+    root_dict["analogy"] = analogy
 
     answer_list = []
 
-    for (idx,child) in enumerate(root.children_answer):
+    for (idx,child) in enumerate(sample.candidates):
         
-        answer_list.append(single_image_to_json(idx + len(root.children_analogie), child))
+        answer_list.append(single_image_to_json(idx + len(sample.analogy), child))
 
     root_dict["candidates"] = answer_list
     	
@@ -92,8 +92,8 @@ def safe_json(root:Root, analogie_id):
         os.mkdir("data")
         
 
-    with open(f"data/{analogie_id}/{analogie_id}.json", "w") as f:
-        json.dump(root_dict, f)
+    with open(f"data/{analogy_id}/{analogy_id}.json", "w") as f:
+        json.dump(root_dict, f, indent=4)
 
 
 

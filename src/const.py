@@ -4,7 +4,6 @@
     Consts
 """
 
-
 """
     ***Attributes***
 """
@@ -12,9 +11,8 @@
 """
     Size
 """
-SIZE_VALUES = [0.3,0.4,0.5,0.6,0.7]
-SIZE_MIN = 0
-SIZE_MAX = len(SIZE_VALUES)-1
+SIZE_MIN = 0.1
+SIZE_MAX = 0.5
 
 """
     Type
@@ -26,9 +24,14 @@ TYPE_MAX = len(TYPE_VALUES) -1
 """
     Filling
 """
-FILLING_VALUES = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1]
-FILLING_MIN = 0
-FILLING_MAX = len(FILLING_VALUES) -1
+FILLING_MIN = 0.1
+FILLING_MAX = 1
+
+"""
+    Rotation
+"""
+ROTATION_MIN = 0
+ROTATION_MAX = 360
 
 """
     Image Size
@@ -45,3 +48,9 @@ SINGLE_IMAGE_HEIGHT = 224
     Corner order
 """
 CORNER_ORDER = ["Circle", "Square", "Star"]
+
+MIN_COMPONENTS = 2
+MAX_COMPONENTS = 2
+NUMBER_OF_SAMPLES = 10
+
+STAR_PEAKS = 5

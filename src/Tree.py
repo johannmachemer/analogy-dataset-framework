@@ -1,6 +1,9 @@
-from Attribute import (Size, Type, Position, Filling)
+from Attribute import (Size, Type, Position, Filling, Rotation)
 import subprocess
 import os
+
+from src.Rule import Rule
+
 
 class TreeNode(object):
     """ Superclass of all tree nodes """
@@ -14,59 +17,60 @@ class TreeNode(object):
 
 
 
-class Root(TreeNode):
+class AnalogySample:
     """ Root node"""
 
-    def __init__(self, rule_set):
+    def __init__(self, analogy_rules:[Rule]):
         """
         Instantiate a Root node.
 
         Args:
-            rule_set (List(Rule)): a list of all rules on this analogy
+            analogy_rules (List(Rule)): a list of all rules to create the analogy
         """
+        super().__init__()
 
         # all children that are part of the analogy
-        self.children_analogie = []
+        self.analogy = []
         # all children that are part of the possible answers
-        self.children_answer = []
-        self.rule_set = rule_set
+        self.candidates = []
+        self.analogy_rules = analogy_rules
 
-    def insertAnalogie(self, node):
+    def insert_analogy(self, node):
         """
         Insert a SingleImage to the analogy list
 
         Args:
             node (SingleImage): the SingleImage to insert
         """
-        self.children_analogie.append(node)
+        self.analogy.append(node)
 
-    def insertAnswers(self, answerList):
+    def insert_candidates(self, candidates):
         """
         Insert a List of SingleImages to the possible answer list
 
         Args:
-            node (List(SingleImage)): the SingleImage to insert
+            candidates (List(SingleImage)): the SingleImage to insert
         """
-        self.children_answer.extend(answerList)
+        self.candidates.extend(candidates)
 
     def print(self):
         """
         print a root
         """
         print("Root")
-        for (childNumber,child) in enumerate(self.children_analogie):
+        for (childNumber,child) in enumerate(self.analogy):
             child.print(childNumber)
-        for (childNumber,child) in enumerate(self.children_answer):
+        for (childNumber,child) in enumerate(self.candidates):
             child.print(childNumber)
 
-    def saveLatex(self, file_name):
+    def save_latex(self, file_name):
         """
         Save root in latex syntax
 
         Args: 
             file_name (str): Name of file
         """
-        ausgabe = self.printLatex()
+        output = self.print_latex()
         latex_code = f"""
             \\documentclass{{standalone}}
             \\usepackage{{forest}}
@@ -74,7 +78,7 @@ class Root(TreeNode):
             \\begin{{document}}
 
             \\begin{{forest}}
-            {ausgabe}
+            {output}
             \\end{{forest}}
 
             \\end{{document}}
@@ -97,101 +101,27 @@ class Root(TreeNode):
         os.chdir("..")
 
 
-    def printLatex(self):
+    def print_latex(self):
         """
         print root in latex syntax
 
         """
-        ausgabe = "[Root "
-        for (childNumber,child) in enumerate(self.children_analogie):
-            ausgabe += "[ " 
-            ausgabe += child.printLatex()
-            ausgabe+= "]"
-        for (childNumber,child) in enumerate(self.children_answer):
-            ausgabe += "[ " 
-            ausgabe += child.printLatex()
-            ausgabe+= "]"
+        output = "[Root "
+        for (childNumber,child) in enumerate(self.analogy):
+            output += "[ "
+            output += child.print_latex()
+            output+= "]"
+        for (childNumber,child) in enumerate(self.candidates):
+            output += "[ "
+            output += child.print_latex()
+            output+= "]"
 
-        ausgabe += "]"
-        print(ausgabe)
-        return ausgabe
+        output += "]"
+        print(output)
+        return output
 
-
-
-    def sample(self):
-        """
-        sample root (recursive)
-
-        """
-        for child in self.children_analogie:
-            child.sample()
-        for child in self.children_answer:
-            child.sample()
-
-
-    def getRules(self):
-        return self.rule_set
-
-
-class SingleImage(TreeNode):
-    """ Single Image node"""
-
-
-    
-    def __init__(self):
-        """
-        Instantiate a Single Image node.
-        """
-        # all children components
-        self.components = []
-
-    def insertComponent(self, node):
-        """
-        Insert a component to the Single Image node.
-
-        """
-        self.components.append(node)
-
-    def sample(self):
-        """
-        sample single image (recursive)
-
-        """
-        for component in self.components:
-            component.sample()
-
-
-
-    def print(self, childNumber):
-        """
-        print single image
-
-        Args:
-            childNumber (int): Index of single image inside root children
-        """
-        print("|")
-        print("--Analogi Image ", childNumber)
-        print("  |")
-        print("   --Components: ")
-        for (compnumber,comp) in enumerate(self.components):
-            comp.print(compnumber)
-
-    def printLatex(self):
-        """
-        print single image in latex syntax
-        """
-
-        ausgabe = ""
-        ausgabe += "Analogie Image"
-        ausgabe += "["
-        for (compnumber,comp) in enumerate(self.components):
-            ausgabe += "["
-            ausgabe += comp.printLatex()
-            ausgabe += "]"
-        ausgabe += "]"
-        return ausgabe
-
-
+    def get_rules(self):
+        return self.analogy_rules
 
 
 
@@ -203,10 +133,12 @@ class Component(TreeNode):
         """
         Instantiate a component node.
         """
+        super().__init__()
 
         # init Attributes
         self.type = Type()
         self.size = Size()
+        self.rotation = Rotation()
         self.position = Position()
         self.filling = Filling()
 
@@ -219,23 +151,25 @@ class Component(TreeNode):
         """
 
 
-        if attr == None:
+        if attr is None:
             # sample every attribute
             self.size.sample()
             self.type.sample()
-            self.position.sample((self.size.get_value(), self.size.get_value()))
+            self.rotation.sample()
+            self.position.sample(self.size.get_value())
             self.filling.sample()
             
-        else:
-            if attr == "size":
-                self.size.sample()
-                self.position.sample((self.size.get_value(), self.size.get_value()))
-            elif attr == "type"  or attr == "corners":
-                self.type.sample()
-            elif attr == "position":
-                self.position.sample()
-            elif attr == "filling":
-                self.filling.sample()
+        elif attr == "size":
+            self.size.sample()
+            self.position.sample(self.size.get_value())
+        elif attr == "type" or attr == "corners":
+            self.type.sample()
+        elif attr == "position":
+            self.position.sample()
+        elif attr == "filling":
+            self.filling.sample()
+        elif attr == "rotation":
+            self.rotation.sample()
 
     def print(self, compNumber):
         """
@@ -251,38 +185,93 @@ class Component(TreeNode):
         print("        --Size: ", self.size.get_value())
         print("        --Position: ", self.position.get_value())
         print("        --Filling: ", self.filling.get_value())
+        print("        --Rotation: ", self.rotation.get_value())
 
-    def printLatex(self):
+    def print_latex(self):
         """
         print component in latex syntax
-
-        Args:
-            compNumber (int): Index of component inside single image
         """
-        ausgabe = ""
-        ausgabe += "Component"
-        ausgabe += "[ Type: "
-        ausgabe += f"{self.type.get_value()}"
-        ausgabe += "]"
-        ausgabe += "[ Size: "
-        ausgabe += f"{self.size.get_value()}"
-        ausgabe += "]" 
-        ausgabe += "[ Position: "
-        ausgabe += f"\({self.position.get_value()[0]} \, {self.position.get_value()[1]}\)"
-        ausgabe += "]"
-        ausgabe += "[ Filling: "
-        ausgabe += f"\({self.filling.get_value()}\)"
-        ausgabe += "]"
+        output = ""
+        output += "Component"
+        output += "[ Type: "
+        output += f"{self.type.get_value()}"
+        output += "]"
+        output += "[ Size: "
+        output += f"{self.size.get_value()}"
+        output += "]"
+        output += "[ Position: "
+        output += f"\({self.position.get_value()[0]} \, {self.position.get_value()[1]}\)"
+        output += "]"
+        output += "[ Rotation: "
+        output += f"\({self.rotation.get_value()}\)"
+        output += "]"
+        output += "[ Filling: "
+        output += f"\({self.filling.get_value()}\)"
+        output += "]"
         
 
-        return ausgabe
+        return output
 
-    
+class Group(Component):
 
+    def __init__(self):
+        """
+        Instantiate a Single Image node.
+        """
+        super().__init__()
+        # all children components
+        self.components = []
 
+    def insert_component(self, node):
+        """
+        Insert a component to the Single Image node.
+        """
+        self.components.append(node)
 
+    def sample(self):
+        """
+        sample single image (recursive)
+        """
+        super().sample()
+        self.sample_child_components()
 
+    def sample_child_components(self):
+        for component in self.components:
+            component.sample()
 
-    
+    def print(self, childNumber):
+        """
+        print single image
 
-    
+        Args:
+            childNumber (int): Index of single image inside root children
+        """
+        print("|")
+        print("-- ",self.identification(), " ", childNumber)
+        print("  |")
+        print("   --Components: ")
+        for (compNumber, comp) in enumerate(self.components):
+            comp.print(compNumber)
+
+    def identification(self):
+        return "Group"
+
+    def print_latex(self):
+        """
+        print single image in latex syntax
+        """
+
+        output = ""
+        output += self.identification()
+        output += "["
+        for (_, comp) in enumerate(self.components):
+            output += "["
+            output += comp.print_latex()
+            output += "]"
+        output += "]"
+        return output
+class SingleImage(Group):
+    """ Single Image node"""
+
+    def identification(self):
+        return "Image"

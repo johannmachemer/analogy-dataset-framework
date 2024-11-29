@@ -1,56 +1,31 @@
-from Tree import(Root, SingleImage)
+import numpy as np
+from numpy import ndarray
+from numpy.f2py.auxfuncs import throw_error
+
+from Tree import (AnalogySample, SingleImage, Group)
 from PIL import Image, ImageDraw
 import math
 import random
 import os
-from const import (SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH)
+from const import (SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH, STAR_PEAKS)
 
-
-
-def render_star(draw, center, radius, points, fill, outline, width):
-    """
-    Draws a star-shaped polygon on a canvas.
-
-    Args:
-        draw: The drawing context
-        center (tuple): The (x, y) coordinates of the star's center.
-        radius (float): The radius of the star (distance from center to outermost points).
-        points (int): The number of points (or spikes) the star should have.
-        fill: The fill color of the star.
-        outline: The outline color of the star.
-        width (int): The width of the star's outline.
-    """
-    angle = math.pi / points
-    rotation_offset = math.pi / 2
-
-    coords = []
-    for i in range(2 * points):
-        r = radius if i % 2 == 0 else radius / 2
-        x = center[0] + r * math.cos(i * angle + rotation_offset)
-        y = center[1] - r * math.sin(i * angle + rotation_offset)
-        coords.append((x, y))
-
-    draw.polygon(coords, fill=fill, outline=outline, width=width)
-
-
-
-def safeRootAsSingleImages(root,id):
+def safe_root_as_single_images(root, id):
     """
     Saves a Root as single images
 
     Args:
-        root (Root): root to save
+        root (AnalogySample): root to save
         id (int): id of the analogy
     """
-    assert isinstance(root, Root)
+    assert isinstance(root, AnalogySample)
 
     images = []
 
-    for single_image in root.children_analogie:
-        images.append(renderSingleImage(single_image))
+    for single_image in root.analogy:
+        images.append(render_single_image(single_image))
 
-    for single_image in root.children_answer:
-        images.append(renderSingleImage(single_image))
+    for single_image in root.candidates:
+        images.append(render_single_image(single_image))
 
     if not os.path.isdir("data"):
         os.mkdir("data")
@@ -66,28 +41,28 @@ def safeRootAsSingleImages(root,id):
 
     
 
-def safeRootAsCollage(root, id):
+def safe_root_as_collage(root, id):
     """
     Saves a Root as a collage
 
     Args:
-        root (Root): root to save
+        root (AnalogySample): root to save
         id (int): id of the analogy
     """
 
-    assert isinstance(root, Root)
+    assert isinstance(root, AnalogySample)
 
     images = []
 
-    for single_image in root.children_analogie:
-        images.append(renderSingleImage(single_image))
+    for single_image in root.analogy:
+        images.append(render_single_image(single_image))
 
     analog_image = concatenate_images_horizontally(images)
 
     images = []
 
-    for single_image in root.children_answer:
-        images.append(renderSingleImage(single_image))
+    for single_image in root.candidates:
+        images.append(render_single_image(single_image))
 
     answer_images_1 = concatenate_images_horizontally(images[0:3])
 
@@ -101,8 +76,106 @@ def safeRootAsCollage(root, id):
     all_images.save(f"data/{id}/{id}-collage.png")
 
 
+def determine_all_rendering_objects(components_list, super_width = SINGLE_IMAGE_WIDTH, super_fill = 1):
+    result = []
+    for component in components_list:
+        if isinstance(component, Group):
+            subcomponents = determine_all_rendering_objects(component.components, super_width * component.size.get_value(),
+                                                            super_fill * component.filling.get_value())
+            for subcomponent in subcomponents:
+                subcomponent.translate_and_rotate(component.position.value, component.rotation.value)
+            result.extend(subcomponents)
+        else:
+            if component.type.get_value() == "Square":
+                rendering_object = Square(component, super_width, super_fill)
+            elif component.type.get_value() == "Circle":
+                rendering_object = Circle(component, super_width, super_fill)
+            else:
+                rendering_object = Star(component, super_width, super_fill)
+            result.append(rendering_object)
+    return result
 
-def renderSingleImage(single_image):
+
+def translate_and_rotate(points, center, angle):
+        theta = angle / 180 * np.pi
+        c, s = np.cos(angle), np.sin(theta)
+        rotation_matrix = np.array(((c, -s), (s, c)))
+        return np.matmul(points, rotation_matrix) + center
+
+def filling(component, super_fill):
+    value = component.filling.get_value()
+    fill_color = int(255 * value * super_fill)
+    return fill_color, fill_color, fill_color
+
+def convert_coordinates(coordinates:ndarray[:2]) -> list[tuple[float, float]]:
+    return [ (x,y) for x,y in coordinates]
+
+class RenderingObject:
+
+    def __init__(self, position, width, angle, fill):
+        w = width / 2
+        self.fill = fill
+        self.boundingBox = translate_and_rotate(
+            np.array([[-w, -w], [w, -w], [w, w], [-w, w]]),
+            position,
+            angle)
+
+    def translate_and_rotate(self, center, angle):
+        self.boundingBox =  translate_and_rotate(self.boundingBox, center, angle)
+
+    def draw(self, canvas):
+        raise NotImplementedError()
+
+class Circle(RenderingObject):
+
+    def __init__(self, component, width, super_fill):
+        circle_diameter = int(width * component.size.get_value())
+        super().__init__(component.position.value, circle_diameter, 0, filling(component, super_fill))
+
+    def translate_and_rotate(self, center, angle):
+        self.boundingBox =  super().translate_and_rotate(center, 0)
+
+    def draw(self, canvas):
+        canvas.ellipse(convert_coordinates([self.boundingBox[0], self.boundingBox[2]]), outline="black", width=2, fill=self.fill)
+
+class Square(RenderingObject):
+
+    def __init__(self, component, width, super_fill):
+        rect_width = int(width * component.size.get_value())
+        super().__init__(component.position.value, rect_width, component.rotation.value % 90, filling(component, super_fill))
+
+    def draw(self, canvas):
+        canvas.polygon(convert_coordinates(self.boundingBox), fill=self.fill, outline="black", width=2)
+
+    def translate_and_rotate(self, center, angle):
+        super().translate_and_rotate(center, 0)
+
+class Star(RenderingObject):
+
+    def __init__(self, component, width, super_fill):
+        center = component.position.get_value()
+        radius = int(width * component.size.get_value() / 2)
+        angle = math.pi / STAR_PEAKS
+        rotation_offset = math.pi / 2
+
+        self.coordinates = np.empty((0, 2))
+        for i in range(2 * STAR_PEAKS):
+            r = radius if i % 2 == 0 else radius / 2
+            x = center[0] + r * math.cos(i * angle + rotation_offset)
+            y = center[1] + r * math.sin(i * angle + rotation_offset)
+            self.coordinates = np.concatenate((self.coordinates, [(x, y)]))
+        super().__init__(component.position.value, radius * 2, component.rotation.value, filling(component, super_fill))
+
+    def translate_and_rotate(self, center, angle):
+        super().translate_and_rotate(center, angle % (360 / STAR_PEAKS))
+        self.coordinates = translate_and_rotate(self.coordinates, center, angle % (360 / STAR_PEAKS))
+
+    def draw(self, canvas):
+        canvas.polygon(convert_coordinates(self.coordinates), fill=self.fill, outline="black", width=2)
+
+
+
+def render_single_image(single_image):
     """
     Render a single image
 
@@ -112,47 +185,16 @@ def renderSingleImage(single_image):
     Returns:
         img (Image): The rendered Image
     """
-
-
     assert isinstance(single_image, SingleImage)
 
     img = Image.new("RGB", (SINGLE_IMAGE_WIDTH, SINGLE_IMAGE_HEIGHT), "white")
 
     draw = ImageDraw.Draw(img)
 
-    for component in single_image.components:
+    rendering_objects = determine_all_rendering_objects(single_image.components)
 
-        filling = component.filling.get_value()
-        fill_color = int(255 * (1-filling)) 
-        fill = (fill_color, fill_color, fill_color)
-
-        if component.type.get_value() == "Square":
-
-            rect_width = int(SINGLE_IMAGE_HEIGHT * component.size.get_value())
-            x0 = component.position.get_value()[0]
-            y0 = component.position.get_value()[1]
-
-            x1 = x0 + rect_width
-            y1 = y0 + rect_width
-            draw.rectangle([x0, y0, x1, y1], outline="black", width= 2, fill=fill)
-        elif component.type.get_value() == "Circle":
-
-            circle_diameter = int(min(SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH) * component.size.get_value())
-
-            
-
-            x0 = component.position.get_value()[0]
-            y0 = component.position.get_value()[1]
-            x1 = x0 + circle_diameter
-            y1 = y0 + circle_diameter
-
-            draw.ellipse([x0, y0, x1, y1], outline="black", width= 2, fill=fill)
-
-        elif component.type.get_value() == "Star":
-            center = component.position.get_value()
-            radius = int(min(SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH) * component.size.get_value() / 2)
-            render_star(draw, center, radius, 5, fill, "black", 2)
-    
+    for rendering_object in rendering_objects:
+        rendering_object.draw(draw)
 
     return img
 
@@ -185,8 +227,6 @@ def concatenate_images_horizontally(images):
             current_x += 5
 
     return new_image
-
-
 
 def concatenate_images_vertical(images):
     """
