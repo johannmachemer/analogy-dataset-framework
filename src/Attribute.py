@@ -97,8 +97,7 @@ class Type(Attribute):
         self.values = TYPE_VALUES
         
         # standard value
-        self.level = min_level
-        self.value = self.values[self.level]
+        self.value = self.values[min_level]
 
     
     def sample(self):
@@ -106,14 +105,11 @@ class Type(Attribute):
         sample the value of the Type
         """
 
-        self.level = np.random.randint(self.min_level, self.max_level+1)
-        self.value = self.values[self.level]
+        self.value = self.values[ np.random.randint(self.min_level, self.max_level+1)]
 
 
 class Position(Attribute):
 
-
-   
     def __init__(self, min_level=0, max_level=SINGLE_IMAGE_HEIGHT):
         """
         Initialize new position attribute

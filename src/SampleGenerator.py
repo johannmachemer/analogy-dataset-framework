@@ -6,8 +6,10 @@ from Tree import SingleImage
 from Tree import Component
 import copy
 from src.Attribute import KindsOfAttributes
+from src.InvalidImageHandler import save_invalid_image
 from src.RenderingObjectGenerator import RenderingObject, determine_all_rendering_objects
-from src.const import NUMBER_OF_SAMPLES, MIN_COMPONENTS, MAX_COMPONENTS, SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH
+from src.const import NUMBER_OF_SAMPLES, MIN_COMPONENTS, MAX_COMPONENTS, SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH, \
+    SAVE_INVALID_IMAGES
 
 
 def create_analogy_sample():
@@ -52,14 +54,19 @@ def create_image():
 
 def create_valid_image():
     image = create_image()
-    return image if validate_image(image) else create_valid_image()
+    if validate_image(image):
+        return image
+    if SAVE_INVALID_IMAGES:
+        save_invalid_image(image)
+    return create_valid_image()
 
 def validate_image(image:SingleImage):
     objects = determine_all_rendering_objects(image.components)
+    for obj in objects:
+        if not obj.is_valid(SINGLE_IMAGE_WIDTH, SINGLE_IMAGE_HEIGHT):
+            return False
     for first_index in range(len(objects) - 1):
         first = objects[first_index]
-        if not first.is_valid(SINGLE_IMAGE_WIDTH, SINGLE_IMAGE_HEIGHT):
-            return False
         for second_index in range(first_index + 1, len(objects)):
             if first.overlap(objects[second_index]):
                 return False
@@ -79,7 +86,6 @@ def create_candidates(sample: AnalogySample):
 
     """
 
-    rule_list = sample.get_rules()
 
     candidates = []
 

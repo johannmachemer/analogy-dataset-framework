@@ -41,7 +41,7 @@ class RenderingObject:
             angle)
 
     def is_valid(self, image_width, image_height):
-        return not self.is_outside_image(image_width, image_height) and 0 <= self.fill[0] <= 1
+        return (not self.is_outside_image(image_width, image_height)) and 0 <= self.fill[0] <= 255
 
     def is_outside_image(self, image_width, image_height):
         for x, y in self.boundingBox:
@@ -52,7 +52,7 @@ class RenderingObject:
         return False
 
     def overlap(self, other_object):
-        return self.any_corner_inside(other_object) or self.edge_collision(other_object)
+        return self.any_corner_inside(other_object) or other_object.any_corner_inside(self) or self.edge_collision(other_object)
 
     def any_corner_inside(self, other_object):
         for corner in other_object.boundingBox:
