@@ -1,8 +1,7 @@
-from Tree import (AnalogySample, SingleImage, Group)
+from AnalogySample import (AnalogySample, SingleImage, Group)
 from PIL import Image, ImageDraw
 import os
 from const import (SINGLE_IMAGE_HEIGHT, SINGLE_IMAGE_WIDTH, STAR_PEAKS)
-from src.RenderingObjectGenerator import determine_all_rendering_objects
 
 
 def safe_root_as_single_images(root, id):
@@ -82,11 +81,7 @@ def render_single_image(single_image):
     img = Image.new("RGB", (SINGLE_IMAGE_WIDTH, SINGLE_IMAGE_HEIGHT), "white")
 
     draw = ImageDraw.Draw(img)
-
-    rendering_objects = determine_all_rendering_objects(single_image.components)
-
-    for rendering_object in rendering_objects:
-        rendering_object.draw(draw)
+    single_image.draw(draw)
 
     return img
 

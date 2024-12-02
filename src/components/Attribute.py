@@ -1,9 +1,6 @@
 import numpy as np
 from enum import Enum, StrEnum
-
-from const import (SIZE_MAX, SIZE_MIN, TYPE_VALUES, TYPE_MAX, TYPE_MIN, SINGLE_IMAGE_HEIGHT, FILLING_MAX,
-                   FILLING_MIN, ROTATION_MAX)
-from src.const import ROTATION_MIN
+from src.const import *
 
 
 class KindsOfAttributes(StrEnum):
@@ -83,21 +80,20 @@ class Rotation(Attribute):
 class Type(Attribute):
    
 
-    def __init__(self, min_level=TYPE_MIN, max_level=TYPE_MAX):
+    def __init__(self, value = TYPE_VALUES[TYPE_MIN]):
         """
         Initialize new size attribute
 
         Args:
-            min_level (int): the minimum level of the size.
-            max_level (int): the maximum level of the size
+            value (str): actual value of the type
         """
         super().__init__()
-        self.min_level = min_level
-        self.max_level = max_level
+        self.min_level = TYPE_MIN
+        self.max_level = TYPE_MAX
         self.values = TYPE_VALUES
         
         # standard value
-        self.value = self.values[min_level]
+        self.value = value
 
     
     def sample(self):
@@ -110,7 +106,7 @@ class Type(Attribute):
 
 class Position(Attribute):
 
-    def __init__(self, min_level=0, max_level=SINGLE_IMAGE_HEIGHT):
+    def __init__(self, min_level=-1, max_level=1):
         """
         Initialize new position attribute
 
@@ -122,19 +118,18 @@ class Position(Attribute):
         self.min_level = min_level
         self.max_level = max_level
 
-        self.value = np.array([int(max_level / 2), int(max_level /2)])
+        self.value = np.array([0.,0.])
 
     
-    def sample(self, size=0):
+    def sample(self, width=0):
         """
         sample the value of the position
 
         Args:
-            size(float): size of the object, so its inside the borders
+            width(float): width of the object, so its inside the borders
         """
-        width = int( size*self.max_level)
-        minimal_left_upper_corner = np.array([int(width / 2), int(width / 2)])
-        self.value = np.array([np.random.randint(self.min_level, self.max_level - width), np.random.randint(self.min_level, self.max_level - width)]) + minimal_left_upper_corner
+        minimal_left_upper_corner = np.ones(2) * (width / 2 + self.min_level)
+        self.value = np.array([np.random.uniform(0, self.max_level - width - self.min_level), np.random.uniform(0, self.max_level - width - self.min_level)]) + minimal_left_upper_corner
 
 
 

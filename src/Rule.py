@@ -1,6 +1,9 @@
 import numpy as np
 
 from const import (TYPE_VALUES, CORNER_ORDER)
+from src.components.Circle import Circle
+from src.components.Square import Square
+from src.components.Star import Star
 from src.const import SIZE_PROGRESSIONS, FILLING_PROGRESSIONS, ROTATION_PROGRESSIONS, POSITION_PROGRESSIONS
 
 
@@ -61,50 +64,33 @@ class Progression(Rule):
 
     def apply_rule(self, image_before, new_image):
 
-        rule_component = new_image.components[self.component_idx]
+        rule_component = new_image.get_all_components()[self.component_idx]
 
         #apply progression
         if self.attr == "size":
-            rule_component.size.value = rule_component.size.value + self.value
+            rule_component.add_size(self.value)
                 
         if self.attr == "position":
-            rule_component.position.value = rule_component.position.value + self.value * np.ones(2)
+            rule_component.add_position(self.value * np.ones(2))
 
         if self.attr == "type":
-            rule_component.type.value = self.value
+            if self.value == "Circle":
+                new_component = Circle(rule_component)
+            elif self.value == "Square":
+                new_component = Square(rule_component)
+            elif self.value == "Star":
+                new_component = Star(rule_component)
+            else:
+                raise ValueError
+
+            superior_components = rule_component.superior_component.components
+            index_in_superior_component = (superior_components.index(rule_component))
+            superior_components[index_in_superior_component] = new_component
 
         if self.attr == "filling":
-            rule_component.filling.value = rule_component.filling.value + self.value
+            rule_component.add_filling(self.value)
 
         if self.attr == "rotation":
-            rule_component.rotation.value = rule_component.rotation.value + self.value
+            rule_component.add_rotation(self.value)
 
         return new_image
-
-class Const(Rule):
-    """ Rule for Const """
-
-    def __init__(self, attr, params=[],component_idx=0):
-        super().__init__( attr, params, component_idx)
-
-    def sample(self):
-        pass
-
-    def apply_rule(self, image_before, new_image):
-        rule_component_new = new_image.components[self.component_idx]
-        rule_component_before = image_before.components[self.component_idx]
-
-        #apply const
-        if self.attr == "size":
-            rule_component_new.size.value = rule_component_before.size.value
-        if self.attr == "type":
-            rule_component_new.type.value = rule_component_before.type.value
-        if self.attr == "filling":
-            rule_component_new.filling.value = rule_component_before.filling.value
-
-        return new_image
-
-
-        
-        
-        

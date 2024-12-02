@@ -1,7 +1,7 @@
 import os
-from Tree import (AnalogySample, Component)
+from AnalogySample import *
 import json
-
+from src.components.Component import *
 
 
 def component_to_json(idx, component:Component):

@@ -19,6 +19,7 @@ SIZE_PROGRESSIONS = [-0.2, -0.1, 0.1, 0.2]
     Type
 """
 TYPE_VALUES = ["Square", "Circle", "Star"]
+ALL_TYPE_VALUES = ["Square", "Circle", "Star", "Group"]
 TYPE_MIN = 0
 TYPE_MAX = len(TYPE_VALUES) -1
 
@@ -41,7 +42,7 @@ ROTATION_PROGRESSIONS = [15, 30, 45, 60, 75] # degrees
 """
 SINGLE_IMAGE_WIDTH = 224
 SINGLE_IMAGE_HEIGHT = 224
-POSITION_PROGRESSIONS = [-20, -10, 10, 20] # pixel numbers
+POSITION_PROGRESSIONS = [-0.2, -0.1, 0.1, 0.2] # pixel numbers
 
 
 """
@@ -54,7 +55,8 @@ POSITION_PROGRESSIONS = [-20, -10, 10, 20] # pixel numbers
 CORNER_ORDER = ["Circle", "Square", "Star"]
 
 MIN_COMPONENTS = 2
-MAX_COMPONENTS = 2
+MAX_COMPONENTS = 5
+MAX_DEPTH = 3
 NUMBER_OF_SAMPLES = 10
 
 STAR_PEAKS = 5

@@ -3,7 +3,10 @@ import json
 import numpy as np
 
 from src.Rule import Progression
-from src.Tree import SingleImage, Component, AnalogySample
+from src.AnalogySample import SingleImage, AnalogySample
+from src.components.Attribute import Type
+from src.components.Component import Component
+
 
 def import_json(filename):
     with open(filename) as json_file:
@@ -48,8 +51,8 @@ def convert_image(image_input):
 
 
 def convert_component(component_input):
-    component = Component()
-    component.type.value = component_input["type"]
+    type = component_input["type"]
+    component = Component(Type(type))
     component.size.value = component_input["size"]
     component.position.value = np.array(component_input["position"])
     component.rotation.value = int(component_input["rotation"])
