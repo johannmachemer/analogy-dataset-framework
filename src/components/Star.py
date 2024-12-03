@@ -32,3 +32,9 @@ class Star(Component):
 
     def draw(self, canvas):
         canvas.polygon(convert_coordinates(self.star_corners), fill=self.filling_color(), outline="black", width=2)
+
+
+    def determine_feasible_rule_parameter(self, attr, parameters):
+        if attr == "rotation":
+            return [param for param in parameters if param != 360 / STAR_PEAKS]
+        return super().determine_feasible_rule_parameter(attr, parameters)

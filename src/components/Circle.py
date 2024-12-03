@@ -13,3 +13,8 @@ class Circle(Component):
 
     def draw(self, canvas):
         canvas.ellipse(convert_coordinates([self.get_top_left_corner(), self.get_bottom_right_corner()]), outline="black", width=2, fill=self.filling_color())
+
+    def determine_feasible_rule_parameter(self, attr, parameters):
+        if attr == "rotation":
+            return []
+        return super().determine_feasible_rule_parameter(attr, parameters)

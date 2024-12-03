@@ -75,11 +75,11 @@ class Progression(Rule):
 
         if self.attr == "type":
             if self.value == "Circle":
-                new_component = Circle(rule_component.component_number, rule_component)
+                new_component = Circle(rule_component.component_number, previous_version= rule_component)
             elif self.value == "Square":
-                new_component = Square(rule_component.component_number, rule_component)
+                new_component = Square(rule_component.component_number,  previous_version= rule_component)
             elif self.value == "Star":
-                new_component = Star(rule_component.component_number, rule_component)
+                new_component = Star(rule_component.component_number,  previous_version= rule_component)
             else:
                 raise ValueError
 

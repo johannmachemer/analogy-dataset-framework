@@ -140,13 +140,36 @@ def create_candidates(sample: AnalogySample):
 
 def create_analogy_rules(images):
     rules = []
-    for component_idx in range(0, MAX_COMPONENTS):
-        for kindOfAttribute in list(KindsOfAttributes):
-            if component_idx == 0 and np.random.random() < 0.5:
-                rules.append(Progression(kindOfAttribute.value, [], component_idx))
 
+    for i in range(0, np.random.randint(MIN_PROGRESSIONS, MAX_PROGRESSIONS+1)):
+        rules.append(np.random.choice(feasible_rules(images)))
     for rule in rules:
         rule.sample()
-    if len(rules) == 0:
-        return create_analogy_rules(images)
     return rules
+
+def feasible_rules(images):
+    component_number = 0
+    rules = []
+    for attr in list(KindsOfAttributes):
+        params = get_rule_params(attr.value)
+        for image in images:
+            component = image.get_component_by_index(component_number)
+            params = component.determine_feasible_rule_parameter(attr.value, params)
+        if len(params) != 0:
+            rules.append(Progression(attr.value, params, component_number))
+
+    return rules
+
+def get_rule_params(attr):
+    if attr == "size":
+        return SIZE_PROGRESSIONS
+    elif attr == "position":
+        return POSITION_PROGRESSIONS
+    elif attr == "type":
+        return TYPE_VALUES
+    elif attr == "filling":
+        return FILLING_PROGRESSIONS
+    elif attr == "rotation":
+        return ROTATION_PROGRESSIONS
+    else:
+        raise ValueError

@@ -96,6 +96,17 @@ class Component:
                 or any_corner_inside(other_object.boundingBox, self.boundingBox)
                 or edge_collision(self.boundingBox, other_object.boundingBox))
 
+    def determine_feasible_rule_parameter(self, attr, parameters):
+        if attr == "type":
+            return [param for param in parameters if param != self.type.value]
+        elif attr == "position":
+            return [param for param in parameters if 0 <= self.position.value[0] + param <= 1 and 0 <= self.position.value[1] + param <= 1]
+        elif attr == "size":
+            return [param for param in parameters if 0.1 <= self.size.value + param <= 1]
+        elif attr == "filling":
+            return [param for param in parameters if 0.1 <= self.filling.value + param <= 1]
+        return parameters
+
     def sample(self, attr=None):
         """
         sample a Single Image node. Sample either all attributes or one single attribute.
