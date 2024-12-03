@@ -3,12 +3,12 @@ from src.components.Component import *
 
 class Group(Component):
 
-    def __init__(self, superior_component= None, previous_version = None):
+    def __init__(self, component_number, superior_component= None, previous_version = None):
         """
         Instantiate a Single Image node.
         """
         self.components = []
-        super().__init__(Type("Group"), superior_component, previous_version)
+        super().__init__(component_number, Type("Group"), superior_component, previous_version)
         # all children components
 
     def insert_component(self, node):
@@ -40,6 +40,19 @@ class Group(Component):
                 result.extend(component.get_all_components())
 
         return result
+
+    def get_component_by_index(self, component_number):
+        if self.component_number == component_number:
+            return self
+        for component in self.components:
+            if component.component_number == component_number:
+                return component
+            if isinstance(component, Group):
+                result = component.get_component_by_index(component_number)
+                if result is not None:
+                    return result
+        return None
+
 
     def identification(self):
         return "Group"

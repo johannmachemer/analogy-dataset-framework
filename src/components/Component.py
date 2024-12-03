@@ -7,13 +7,14 @@ from src.components.ComponentStaticMethods import *
 class Component:
     """Component node"""
 
-    def __init__(self, type, superior_component = None, previous_version = None):
+    def __init__(self, component_number, type, superior_component = None, previous_version = None):
         """
         Instantiate a component node.
         """
 
         # init Attributes
         self.type = type
+        self.component_number = component_number
         self.boundingBox = []
         if previous_version is None:
             self.superior_component = superior_component

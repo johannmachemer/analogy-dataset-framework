@@ -1,26 +1,29 @@
-import os
 from AnalogySample import *
 import json
 from src.components.Component import *
 
 
-def component_to_json(idx, component:Component):
+def component_to_json(component:Component):
 
     """
         convert single component to json
 
         Args:
-            idx (int): index of the component inside of single image
             component (Component): the component to convert
     """
 
     component_dict = {}
-    component_dict["component_id"] = idx
+    component_dict["component_id"] = component.component_number
     component_dict["type"] = component.type.get_value()
     component_dict["size"] = component.size.get_value()
     component_dict["position"] = component.position.get_value().tolist()
     component_dict["rotation"] = str(component.rotation.get_value())
     component_dict["filling"] = component.filling.get_value()
+
+    if isinstance(component, Group):
+        component_dict["components"] = []
+        for  subcomponent in component.components:
+            component_dict["components"].append(component_to_json(subcomponent))
 
     return component_dict
 
@@ -30,17 +33,16 @@ def single_image_to_json(idx, child):
     convert single image to json
 
     Args:
-        idx (int): index of the single image inside of the root
+        idx (int): index of the single image inside the analogy sample
         child (SingleImage): the single image to convert
     """
     single_image_dict = {}
 
     single_image_dict["img_id"] = idx
+
     single_image_dict["components"] = []
-
-
-    for (component_idx, component) in enumerate(child.components):
-        single_image_dict["components"].append(component_to_json(component_idx, component))
+    for component in child.components:
+        single_image_dict["components"].append(component_to_json(component))
 
     return single_image_dict
     

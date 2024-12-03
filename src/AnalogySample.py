@@ -118,7 +118,7 @@ class SingleImage(Group):
     """ Single Image node"""
 
     def __init__(self):
-        super().__init__()
+        super().__init__(-1)
 
     def get_width(self):
         return SINGLE_IMAGE_WIDTH

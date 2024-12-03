@@ -46,7 +46,7 @@ def create_samples_with_valid_rules(first, third):
     return analog
 
 
-def create_component(superior, depth):
+def create_component(superior, component_number, depth):
 
     if depth == 0 :
         type = np.random.choice(TYPE_VALUES)
@@ -54,22 +54,31 @@ def create_component(superior, depth):
         type = np.random.choice(ALL_TYPE_VALUES)
 
     if type == "Circle":
-        return Circle(superior)
+        component = Circle(component_number, superior)
+        component_number += 1
     elif type == "Group":
-        group_component = Group(superior)
+        component = Group(component_number, superior)
+        component_number += 1
         for i in range(0, np.random.randint(MIN_COMPONENTS, MAX_COMPONENTS + 1)):
-            group_component.insert_component(create_component(group_component, depth - 1))
-        return group_component
+            component_number, subcomponent = create_component(component, component_number, depth - 1)
+            component.insert_component(subcomponent)
     elif type == "Square":
-        return Square(superior)
+        component = Square(component_number, superior)
+        component_number += 1
     elif type == "Star":
-        return Star(superior)
+        component = Star(component_number, superior)
+        component_number += 1
+    else:
+        raise ValueError
+    return component_number, component
 
 
 def create_image():
     image = SingleImage()
+    component_number = 0
     for i in range(0, np.random.randint(MIN_COMPONENTS, MAX_COMPONENTS+1)):
-        image.insert_component(create_component(image, MAX_DEPTH ))
+        component_number, component = create_component(image, component_number, MAX_DEPTH)
+        image.insert_component(component)
     image.sample()
     return image
 

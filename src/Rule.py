@@ -64,7 +64,7 @@ class Progression(Rule):
 
     def apply_rule(self, image_before, new_image):
 
-        rule_component = new_image.get_all_components()[self.component_idx]
+        rule_component = new_image.get_component_by_index(self.component_idx)
 
         #apply progression
         if self.attr == "size":
@@ -75,17 +75,17 @@ class Progression(Rule):
 
         if self.attr == "type":
             if self.value == "Circle":
-                new_component = Circle(rule_component)
+                new_component = Circle(rule_component.component_number, rule_component)
             elif self.value == "Square":
-                new_component = Square(rule_component)
+                new_component = Square(rule_component.component_number, rule_component)
             elif self.value == "Star":
-                new_component = Star(rule_component)
+                new_component = Star(rule_component.component_number, rule_component)
             else:
                 raise ValueError
 
             superior_components = rule_component.superior_component.components
-            index_in_superior_component = (superior_components.index(rule_component))
-            superior_components[index_in_superior_component] = new_component
+            index = superior_components.index(rule_component)
+            superior_components[index] = new_component
 
         if self.attr == "filling":
             rule_component.add_filling(self.value)

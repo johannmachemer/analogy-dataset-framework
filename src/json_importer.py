@@ -1,11 +1,13 @@
 import json
 
-import numpy as np
-
 from src.Rule import Progression
 from src.AnalogySample import SingleImage, AnalogySample
 from src.components.Attribute import Type
+from src.components.Circle import *
 from src.components.Component import Component
+from src.components.Group import Group
+from src.components.Square import Square
+from src.components.Star import Star
 
 
 def import_json(filename):
@@ -45,16 +47,30 @@ def import_json_image(filename):
 def convert_image(image_input):
     image = SingleImage()
     for component_input in image_input["components"]:
-        component = convert_component(component_input)
+        component = convert_component(component_input, image)
         image.insert_component(component)
     return image
 
 
-def convert_component(component_input):
+def convert_component(component_input, superior):
     type = component_input["type"]
-    component = Component(Type(type))
+    component_number = component_input["component_id"]
+    component = Component(component_number, Type(type), superior)
     component.size.value = component_input["size"]
     component.position.value = np.array(component_input["position"])
     component.rotation.value = int(component_input["rotation"])
     component.filling.value = int(component_input["filling"])
+
+    if type == "Circle":
+        component = Circle(component_number, previous_version=component)
+    elif type == "Group":
+        component = Group(component_number, previous_version=component)
+        for subcomponent in component_input["components"]:
+            component.insert_component(convert_component(subcomponent, component))
+    elif type == "Square":
+        component = Square(component_number, previous_version=component)
+    elif type == "Star":
+        component = Star(component_number, previous_version=component)
+    else:
+        raise ValueError
     return component

@@ -4,8 +4,8 @@ from src.components.ComponentStaticMethods import *
 
 class Circle(Component):
 
-    def __init__(self, superior_component = None, previous_version = None):
-        super().__init__(Type("Circle"), superior_component, previous_version)
+    def __init__(self, component_number, superior_component = None, previous_version = None):
+        super().__init__(component_number, Type("Circle"), superior_component, previous_version)
 
     def calculate_bounding_box(self):
         self.rotation.value = 0
