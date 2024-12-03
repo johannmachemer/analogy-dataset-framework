@@ -55,11 +55,11 @@ def convert_image(image_input):
 def convert_component(component_input, superior):
     type = component_input["type"]
     component_number = component_input["component_id"]
-    component = Component(component_number, Type(type), superior)
-    component.size.value = component_input["size"]
+    component = Component(component_number, Type(type), superior_component=superior)
+    component.size.value = float(component_input["size"])
     component.position.value = np.array(component_input["position"])
     component.rotation.value = int(component_input["rotation"])
-    component.filling.value = int(component_input["filling"])
+    component.filling.value = float(component_input["filling"])
 
     if type == "Circle":
         component = Circle(component_number, previous_version=component)
