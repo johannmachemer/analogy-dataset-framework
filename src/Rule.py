@@ -15,7 +15,7 @@ class Rule:
             Args:
                 attr (str): pre-defined name of the attribute where to apply the rule
                 params (list): a list of possible params to sample for the progression value
-                component_idx (int): index of the component to apply the rule to
+                component_idx (str): unique index of the component to apply the rule to
         """
         self.attr = attr
         self.params = params
@@ -59,12 +59,12 @@ class Rule:
 class Progression(Rule):
     """ Rule for progression """
 
-    def __init__(self, attr, params = [], component_idx=0):
+    def __init__(self, attr, params, component_idx):
         super().__init__( attr, params, component_idx)
 
     def apply_rule(self, image_before, new_image):
 
-        rule_component = new_image.get_component_by_index(self.component_idx)
+        rule_component = new_image.get_component_by_identifier(self.component_idx)
 
         #apply progression
         if self.attr == "size":
@@ -75,11 +75,11 @@ class Progression(Rule):
 
         if self.attr == "type":
             if self.value == "Circle":
-                new_component = Circle(rule_component.component_number, previous_version= rule_component)
+                new_component = Circle(rule_component.component_identifier, previous_version= rule_component)
             elif self.value == "Square":
-                new_component = Square(rule_component.component_number,  previous_version= rule_component)
+                new_component = Square(rule_component.component_identifier, previous_version= rule_component)
             elif self.value == "Star":
-                new_component = Star(rule_component.component_number,  previous_version= rule_component)
+                new_component = Star(rule_component.component_identifier, previous_version= rule_component)
             else:
                 raise ValueError
 

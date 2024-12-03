@@ -7,9 +7,9 @@ from src.components.ComponentStaticMethods import rotate_and_translate, convert_
 
 class Star(Component):
 
-    def __init__(self, component_number, superior_component = None, previous_version = None):
+    def __init__(self, component_identifier, superior_component = None, previous_version = None):
         self.star_corners = np.empty((0, 2))
-        super().__init__(component_number, Type("Star"), superior_component, previous_version)
+        super().__init__(component_identifier, Type("Star"), superior_component, previous_version)
 
     def calculate_bounding_box(self):
         super().calculate_bounding_box()

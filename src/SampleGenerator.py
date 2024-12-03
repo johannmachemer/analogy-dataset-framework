@@ -46,7 +46,7 @@ def create_samples_with_valid_rules(first, third):
     return analog
 
 
-def create_component(superior, component_number, depth):
+def create_component(superior, component_id, depth):
 
     if depth == 0 :
         type = np.random.choice(TYPE_VALUES)
@@ -54,30 +54,25 @@ def create_component(superior, component_number, depth):
         type = np.random.choice(ALL_TYPE_VALUES)
 
     if type == "Circle":
-        component = Circle(component_number, superior)
-        component_number += 1
+        component = Circle(component_id, superior)
     elif type == "Group":
-        component = Group(component_number, superior)
-        component_number += 1
+        component = Group(component_id, superior)
         for i in range(0, np.random.randint(MIN_COMPONENTS, MAX_COMPONENTS + 1)):
-            component_number, subcomponent = create_component(component, component_number, depth - 1)
+            subcomponent = create_component(component, i, depth - 1)
             component.insert_component(subcomponent)
     elif type == "Square":
-        component = Square(component_number, superior)
-        component_number += 1
+        component = Square(component_id, superior)
     elif type == "Star":
-        component = Star(component_number, superior)
-        component_number += 1
+        component = Star(component_id, superior)
     else:
         raise ValueError
-    return component_number, component
+    return component
 
 
 def create_image():
     image = SingleImage()
-    component_number = 0
-    for i in range(0, np.random.randint(MIN_COMPONENTS, MAX_COMPONENTS+1)):
-        component_number, component = create_component(image, component_number, MAX_DEPTH)
+    for index in range(0, np.random.randint(MIN_COMPONENTS, MAX_COMPONENTS+1)):
+        component = create_component(image, index, MAX_DEPTH)
         image.insert_component(component)
     image.sample()
     return image
@@ -142,23 +137,36 @@ def create_analogy_rules(images):
     rules = []
 
     for i in range(0, np.random.randint(MIN_PROGRESSIONS, MAX_PROGRESSIONS+1)):
-        rules.append(np.random.choice(feasible_rules(images)))
+        rules.append(np.random.choice(feasible_rules(images, rules)))
     for rule in rules:
         rule.sample()
     return rules
 
-def feasible_rules(images):
-    component_number = 0
+def feasible_rules(images, existing_rules):
+    component_ids = determine_all_shared_component_identifier(images)
     rules = []
-    for attr in list(KindsOfAttributes):
-        params = get_rule_params(attr.value)
-        for image in images:
-            component = image.get_component_by_index(component_number)
-            params = component.determine_feasible_rule_parameter(attr.value, params)
-        if len(params) != 0:
-            rules.append(Progression(attr.value, params, component_number))
+    for component_id in component_ids:
+        for attribute in list(KindsOfAttributes):
+            attr = attribute.value
+            if any([rule.attr == attr and rule.component_idx == component_id for rule in existing_rules]):
+                continue
+            params = get_rule_params(attr)
+            for image in images:
+                component = image.get_component_by_identifier(component_id)
+                params = component.determine_feasible_rule_parameter(attr, params)
+            if len(params) != 0:
+                rules.append(Progression(attr, params, component_id))
 
     return rules
+
+def determine_all_shared_component_identifier(images):
+    first_image = images[0]
+    return [component.get_unique_component_identifier()
+            for component in first_image.components
+            if not(isinstance(component, SingleImage))
+            and all([image.get_component_by_identifier(component.get_unique_component_identifier()) is not None
+                    for image in images[1:]])
+            ]
 
 def get_rule_params(attr):
     if attr == "size":

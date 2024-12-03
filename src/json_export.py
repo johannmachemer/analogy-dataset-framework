@@ -13,12 +13,16 @@ def component_to_json(component:Component):
     """
 
     component_dict = {}
-    component_dict["component_id"] = component.component_number
+    component_dict["component_id"] = component.component_identifier
+    component_dict["component_uid"] = component.get_unique_component_identifier()
     component_dict["type"] = component.type.get_value()
     component_dict["size"] = component.size.get_value()
+    component_dict["real_size"] = component.get_width()
     component_dict["position"] = component.position.get_value().tolist()
+    component_dict["absolute_position"] = component.get_absolut_position().tolist()
     component_dict["rotation"] = str(component.rotation.get_value())
     component_dict["filling"] = component.filling.get_value()
+    component_dict["absolute_filling"] = component.get_filling()
 
     if isinstance(component, Group):
         component_dict["components"] = []

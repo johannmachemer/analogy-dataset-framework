@@ -7,14 +7,14 @@ from src.components.ComponentStaticMethods import *
 class Component:
     """Component node"""
 
-    def __init__(self, component_number, type, superior_component = None, previous_version = None):
+    def __init__(self, component_identifier, type, superior_component = None, previous_version = None):
         """
         Instantiate a component node.
         """
 
         # init Attributes
         self.type = type
-        self.component_number = component_number
+        self.component_identifier = str(component_identifier)
         self.boundingBox = []
         if previous_version is None:
             self.superior_component = superior_component
@@ -52,6 +52,15 @@ class Component:
     def add_rotation(self, value):
         self.rotation.value += value
         self.calculate_bounding_box()
+
+    def get_unique_component_identifier(self):
+
+        if self.superior_component is None:
+            return self.component_identifier
+        superior_identifier = self.superior_component.get_unique_component_identifier()
+        if superior_identifier == "-1":
+            return self.component_identifier
+        return superior_identifier + ":" + self.component_identifier
 
     def get_absolut_position(self):
         """
