@@ -2,7 +2,6 @@ import json
 
 from src.Rule import Progression
 from src.AnalogySample import SingleImage, AnalogySample
-from src.components.Attribute import Type
 from src.components.Circle import *
 from src.components.Component import Component
 from src.components.Group import Group

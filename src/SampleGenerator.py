@@ -18,8 +18,10 @@ def create_analogy_sample():
     first = create_valid_image()
     third = create_valid_image()
 
-    analog = create_samples_with_valid_rules(first, third)
+    analog, second, fourth = create_samples_with_valid_rules(first, third)
 
+    if not (len(analog.analogy_rules) > 0 and validate_image(second) and validate_image(fourth)):
+        return create_analogy_sample()
     candidates = create_candidates(analog)
 
     analog.insert_candidates(candidates)
@@ -34,16 +36,13 @@ def create_samples_with_valid_rules(first, third):
         rule.apply_rule(first, second)
         rule.apply_rule(third, fourth)
 
-    if not (validate_image(second) and validate_image(fourth)):
-        return create_samples_with_valid_rules(first, third)
-
     analog = AnalogySample(rules)
     analog.insert_analogy(first)
     analog.insert_analogy(second)
     analog.insert_analogy(third)
     # analog.insert_analogy(fourth)
     analog.insert_candidates([fourth])
-    return analog
+    return analog, second, fourth
 
 
 def create_component(superior, component_id, depth):

@@ -66,7 +66,10 @@ class Component:
         """
             determine the absolute position of the component inside the canvas
         """
-        return rotate_and_translate(self.get_relative_position(), self.superior_component.get_absolut_position(), self.superior_component.get_rotation())
+        return rotate_and_translate(
+            self.get_relative_position(),
+            self.superior_component.get_absolut_position(),
+            self.superior_component.get_rotation())
 
     def get_relative_position(self):
         """
@@ -98,7 +101,9 @@ class Component:
         raise NotImplementedError()
 
     def is_valid(self, image_width, image_height):
-        return (not is_outside_image(self.boundingBox, image_width, image_height)) and 0 <= self.get_filling() <= 1
+        return ((not is_outside_image(self.boundingBox, image_width, image_height))
+                and 0.1 <= self.get_filling() <= 1
+                and 5 <= self.get_width())
 
     def overlap(self, other_object):
         return (any_corner_inside(self.boundingBox, other_object.boundingBox)
@@ -109,11 +114,18 @@ class Component:
         if attr == "type":
             return [param for param in parameters if param != self.type.value]
         elif attr == "position":
-            return [param for param in parameters if 0 <= self.position.value[0] + param <= 1 and 0 <= self.position.value[1] + param <= 1]
+            return [param for param in parameters
+                    if -1 <= self.position.value[0] + param <= 1
+                    and -1 <= self.position.value[1] + param <= 1
+                    and abs(self.superior_component.get_width() * param) >= 10]
         elif attr == "size":
-            return [param for param in parameters if 0.1 <= self.size.value + param <= 1]
+            return [param for param in parameters
+                    if 0.1 <= self.size.value + param <= 1
+                    and abs(self.superior_component.get_width() * (self.size.value + param)) >= 10]
         elif attr == "filling":
-            return [param for param in parameters if 0.1 <= self.filling.value + param <= 1]
+            return [param for param in parameters
+                    if 0.1 <= self.filling.value + param <= 1
+                    and abs(self.superior_component.get_filling() * param * 255) >= 5]
         return parameters
 
     def sample(self, attr=None):
