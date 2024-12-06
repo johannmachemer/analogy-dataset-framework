@@ -53,6 +53,33 @@ class Group(Component):
                     return result
         return None
 
+    def determine_feasible_rule_parameter(self, attr, parameters):
+        parameters = super().determine_feasible_rule_parameter(attr, parameters)
+        if attr == "position" or attr == "size":
+            return [param for param in parameters
+                    if all(
+                        [len(comp.determine_feasible_rule_parameter(attr, [(self.size.value + param) / self.size.value])) != 0
+                         for comp in self.components])
+                    ]
+        elif attr == "filling":
+            return [param for param in parameters
+                    if all(
+                        [len(comp.determine_feasible_rule_parameter(attr, [(self.filling.value + param) / self.filling.value])) != 0
+                         for comp in self.components])
+                    ]
+        elif attr == "rotation":
+            result = []
+            original_rotation = self.rotation.value
+            for param in parameters:
+                self.rotation.value = original_rotation + param
+                if all([comps.is_valid(SINGLE_IMAGE_WIDTH, SINGLE_IMAGE_HEIGHT) for comps in self.components]):
+                    result.append(param)
+            self.rotation.value = original_rotation
+            parameters = result
+        return parameters
+
+
+
 
     def identification(self):
         return "Group"

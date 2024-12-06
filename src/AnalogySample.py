@@ -8,11 +8,13 @@ from src.const import SINGLE_IMAGE_WIDTH
 
 
 class AnalogySample:
-    """ Root node"""
+    """
+    An analogy sample contains all images and the used rules for creating the analogy images
+    """
 
     def __init__(self, analogy_rules:[Rule]):
         """
-        Instantiate a Root node.
+        Instantiate an analogy sample.
 
         Args:
             analogy_rules (List(Rule)): a list of all rules to create the analogy
@@ -24,6 +26,9 @@ class AnalogySample:
         # all children that are part of the possible answers
         self.candidates = []
         self.analogy_rules = analogy_rules
+
+    def all_images(self):
+        return self.analogy + self.candidates
 
     def insert_analogy(self, node):
         """
@@ -93,10 +98,10 @@ class AnalogySample:
 
     def print_latex(self):
         """
-        print root in latex syntax
+        print sample in latex syntax
 
         """
-        output = "[Root "
+        output = "[Sample "
         for (childNumber,child) in enumerate(self.analogy):
             output += "[ "
             output += child.print_latex()
@@ -130,6 +135,9 @@ class SingleImage(Group):
         return 1
 
     def get_rotation(self):
+        return 0
+
+    def get_absolut_rotation(self):
         return 0
 
     def identification(self):

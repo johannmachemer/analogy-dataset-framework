@@ -49,6 +49,9 @@ class Component:
     def get_rotation(self):
         return  self.rotation.value
 
+    def get_absolut_rotation(self):
+        return self.superior_component.get_absolut_rotation() + self.get_rotation()
+
     def add_rotation(self, value):
         self.rotation.value += value
         self.calculate_bounding_box()
